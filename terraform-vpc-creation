@@ -1,0 +1,32 @@
+provider "aws" {
+  region = "us-east-1"
+}
+locals {
+  name = "${terraform.workspace}"
+}
+resource "aws_vpc" "two" {
+  cidr_block = "10.0.0.0/24"
+  tags = {
+    Name = "${local.name}-vpc"
+  }
+}
+resource "aws_subnet" "three" {
+  cidr_block = "10.0.0.0/24"
+  vpc_id     = aws_vpc.two.id
+  tags = {
+    Name = "${local.name}-subnet"
+  }
+}
+resource "aws_instance" "one" {
+  subnet_id     = aws_subnet.three.id
+  ami           = "ami-01c647eace872fc02"
+  instance_type = var.instance_type
+  tags = {
+    name = "${local.name}-instance"
+  }
+}
+variable "instance_type" {
+  description = ""
+  type        = string
+  default     = "t2.medium"
+}
