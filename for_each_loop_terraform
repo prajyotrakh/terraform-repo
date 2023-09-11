@@ -1,0 +1,17 @@
+provider "aws" {
+  region = "us-east-1"
+}
+
+variable "local_files" {
+  description = "Set of local file names"
+  type        = set(string)
+  default     = ["prajyot", "prashant", "priyanka"]
+}
+
+resource "local_file" "files" {
+  for_each = var.local_files
+
+  filename = "/root/${each.key}"
+  content  = ""  # Set empty content for empty local files
+}
+
