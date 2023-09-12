@@ -1,0 +1,22 @@
+provider "aws" {
+region = "us-east-1"
+}
+
+terraform {
+  backend "s3" {
+    bucket         = "testing.local"
+    key            = "test"
+    region         = "us-east-1"
+    
+       } 
+}
+
+resource "aws_instance" "one" {
+ami = "ami-0f844a9675b22ea32"
+instance_type = "t2.micro"
+key_name = "test-keypair"
+availability_zone ="us-east-1a"
+tags = {
+Name = "vm"
+}
+}
