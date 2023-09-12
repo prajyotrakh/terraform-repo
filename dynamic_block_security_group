@@ -1,0 +1,71 @@
+provider "aws" {
+  region = "ap-southeast-1"
+}
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "5.16.2"
+    }
+  }
+}
+
+locals {
+  ingress_rules = [
+    {
+      port        = 443
+      description = "port is 443"
+    },
+    {
+      port        = 80
+      description = "port is 80"
+    },
+    {
+      port        = 8080
+      description = "port is 8080"
+    },
+    {
+      port = 22
+      description = "port is 22"
+   }
+  ]
+}
+
+resource "aws_security_group" "one" {
+  name = "my-security-group"
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  dynamic "ingress" {
+    for_each = local.ingress_rules
+
+    content {
+      from_port   = ingress.value.port
+      to_port     = ingress.value.port
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  }
+
+  tags = {
+    Name = "launch_wizard1"
+  }
+}
+
+resource "aws_instance" "two" {
+  ami                    = "ami-0f42fee27e4574e51"
+  instance_type          = var.instance_type
+  key_name              = "test-keypair1"
+  vpc_security_group_ids = [aws_security_group.one.name]
+  tags = {
+    Name = "test-vm"
+  }
+}
+variable "instance_type" {
+
+}
